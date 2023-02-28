@@ -1,8 +1,6 @@
 # Importing Required Libraries
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import re
 import nltk
 from nltk.tokenize import word_tokenize
@@ -14,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 import warnings
+import pickle
 
 warnings.filterwarnings('ignore')
 nltk.download('stopwords')
@@ -167,3 +166,6 @@ recall = recall_score(y_test, y_prediction, average='weighted') * 100
 f1 = f1_score(y_test, y_prediction, average='weighted') * 100
 print(f"\nPrecision Score\t\tRecall Score\t\tF1 Score")
 print(f"{precision}\t{recall}\t{f1}\n")
+
+# Pickling the file
+pickle.dump(model_ml, open('model.pkl', 'wb'))
