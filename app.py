@@ -6,9 +6,14 @@ app = Flask(__name__)
 
 
 # Creating home route
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home_page():
     return render_template('index.html')
+
+
+@app.route('/predict')
+def prediction_page():
+    return render_template('prediction.html')
 
 
 if __name__ == "__main__":
