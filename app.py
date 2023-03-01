@@ -6,6 +6,10 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from flask import Flask, render_template, request
+from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
 import numpy as np
 
 nltk.download('stopwords')
@@ -15,12 +19,14 @@ stops = stopwords.words('english')
 # Loading the model
 model = pickle.load(open("model.pkl", 'rb'))
 
+app = Flask(__name__)
 
-# def remove_url(raw_test):
-#     raw_test = re.sub(r'http\S+\s*', ' ', raw_test)
-#     raw_test = re.sub(r'www\S+\s*', ' ', raw_test)
-#     raw_test = re.sub(r'[a-zA-Z0-9]\S+com\s*', '', raw_test)
-#     return raw_test
+
+def remove_url(raw_test):
+    raw_test = re.sub(r'http\S+\s*', ' ', str(raw_test))
+    raw_test = re.sub(r'www\S+\s*', ' ', str(raw_test))
+    raw_test = re.sub(r'[a-zA-Z0-9]\S+com\s*', '', str(raw_test))
+    return raw_test
 
 
 # To convert the non-ascii code into ascii
@@ -32,16 +38,9 @@ def encode(text):
 
 # To remove punctuations and blank space from the resume column
 def remove_tags(raw_test):
-    raw_test = re.sub('\s+', ' ', raw_test)  # To remove Blank Space
-    raw_test = re.sub('[^\w\s]', '', raw_test)  # To remove Punctuations
+    raw_test = re.sub('\s+', ' ', str(raw_test))  # To remove Blank Space
+    raw_test = re.sub('[^\w\s]', '', str(raw_test))  # To remove Punctuations
     return raw_test
-
-
-# To lower the characters in resume column
-# def to_lower(text):
-#
-#     return text
-# df['Resume'] = df['Resume'].apply(lambda x: x.lower())
 
 
 # Tokenizing the word
@@ -63,12 +62,6 @@ def lemmatize_words(text):
     return ' '.join(words)
 
 
-# resume = request.form.get('resume')
-# print(resume)
-# Creating app
-app = Flask(__name__)
-
-
 # Creating home route
 @app.route('/')
 def home_page():
@@ -78,20 +71,15 @@ def home_page():
 @app.route('/predict', methods=['POST', 'GET'])
 def prediction_page():
     resume = request.form.get('resume')
-    # resume = remove_url(resume)
-
-    def remove_url(raw_test):
-        raw_test = re.sub(r'http\S+\s*', ' ', raw_test)
-        raw_test = re.sub(r'www\S+\s*', ' ', raw_test)
-        raw_test = re.sub(r'[a-zA-Z0-9]\S+com\s*', '', raw_test)
-        return raw_test
     resume = remove_url(resume)
     resume = encode(resume)
     resume = remove_tags(resume)
-    # resume = str(lambda x: x.lower())
+    resume = str(resume.lower())
     resume = tokenize(resume)
     resume = remove_stopwords(resume)
     resume = lemmatize_words(resume)
+
+    # Creating
     print(resume)
 
     return render_template('prediction.html')
