@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from flask import Flask, render_template, request
 from sklearn.preprocessing import LabelEncoder
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
@@ -62,6 +62,12 @@ def lemmatize_words(text):
     return ' '.join(words)
 
 
+def to_tfidf(text):
+    tfidf = TfidfVectorizer()
+    text = tfidf.fit_transform([text]).toarray()
+    return text
+
+
 # Creating home route
 @app.route('/')
 def home_page():
@@ -78,9 +84,11 @@ def prediction_page():
     resume = tokenize(resume)
     resume = remove_stopwords(resume)
     resume = lemmatize_words(resume)
+    resume = to_tfidf(resume)
+    result = model.predict(resume)
 
     # Creating
-    print(resume)
+    print(result)
 
     return render_template('prediction.html')
 
