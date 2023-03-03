@@ -63,7 +63,7 @@ def lemmatize_words(text):
 
 
 def to_tfidf(text):
-    tfidf = TfidfVectorizer()
+    tfidf = CountVectorizer()
     text = tfidf.fit_transform([text]).toarray()
     return text
 
