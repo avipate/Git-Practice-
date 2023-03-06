@@ -127,7 +127,7 @@ lb = LabelEncoder()
 df['Category'] = lb.fit_transform(df['Category'])
 
 # Applying Tfidf on the resume column
-tfidf = TfidfVectorizer()
+tfidf = TfidfVectorizer(max_features=3000)
 
 # Splitting the dataset into x and y
 x = tfidf.fit_transform(df['Resume']).toarray()
@@ -169,3 +169,4 @@ print(f"{precision}\t{recall}\t{f1}\n")
 
 # Pickling the file
 pickle.dump(model_ml, open('model.pkl', 'wb'))
+pickle.dump(tfidf, open('vectorized.pkl', 'wb'))
