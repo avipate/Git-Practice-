@@ -6,7 +6,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from PIL import Image
 
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -16,12 +16,17 @@ stops = stopwords.words('english')
 tfidf = pickle.load(open('vectorized.pkl', 'rb'))
 model = pickle.load(open('model.pkl', 'rb'))
 
-# Title
-st.title("Machine Learning Model", )
-st.header("Resume Screening")
+# Adding Image
+image = Image.open('resume.jpg')
+
+st.image(image, width=100)
+
+# Title and Header
+st.title("Resume Screening")
 
 # Text input
-input_resume = st.text_area("Enter the Resume: ", height=500)
+input_resume = st.text_area("Enter the Resume: ", height=450)
+
 
 
 # 1. Preprocessing steps
