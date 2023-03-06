@@ -27,8 +27,6 @@ st.title("Resume Screening")
 # Text input
 input_resume = st.text_area("Enter the Resume: ", height=450)
 
-
-
 # 1. Preprocessing steps
 def nlp_preprocessing(text):
     text = re.sub(r'http\S+\s*', ' ', str(text))
