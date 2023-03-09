@@ -18,54 +18,35 @@ stops = stopwords.words('english')
 
 # Loading the model
 model = pickle.load(open("model.pkl", 'rb'))
+tfidf = pickle.load(open("vectorized.pkl", 'rb'))
 
+# Creating flask app
 app = Flask(__name__)
 
 
-def remove_url(raw_test):
-    raw_test = re.sub(r'http\S+\s*', ' ', str(raw_test))
-    raw_test = re.sub(r'www\S+\s*', ' ', str(raw_test))
-    raw_test = re.sub(r'[a-zA-Z0-9]\S+com\s*', '', str(raw_test))
-    return raw_test
+def nlp_preprocessing(text):
+    text = re.sub(r'http\S+\s*', ' ', str(text))
+    text = re.sub(r'www\S+\s*', ' ', str(text))
+    text = re.sub(r'[a-zA-Z0-9]\S+com\s*', '', str(text))
 
-
-# To convert the non-ascii code into ascii
-def encode(text):
+    # To convert the non-ascii code into ascii
     text = text.encode('ascii', 'ignore')  # Encoding
     text = text.decode()  # Decoding
-    return text
 
+    # To remove punctuations and blank space from the resume column
+    text = re.sub('\s+', ' ', str(text))  # To remove Blank Space
+    text = re.sub('[^\w\s]', '', str(text))  # To remove Punctuations
 
-# To remove punctuations and blank space from the resume column
-def remove_tags(raw_test):
-    raw_test = re.sub('\s+', ' ', str(raw_test))  # To remove Blank Space
-    raw_test = re.sub('[^\w\s]', '', str(raw_test))  # To remove Punctuations
-    return raw_test
-
-
-# Tokenizing the word
-def tokenize(text):
+    # Tokenizing the word
     text = word_tokenize(text)
-    return text
 
-
-# Applying stopwords
-def remove_stopwords(text):
+    # Applying stopwords
     text = [word for word in text if word not in stops]
-    return text
 
-
-# Applying Lemmatizer on resume column
-def lemmatize_words(text):
+    # Applying Lemmatizer on resume column
     lm = WordNetLemmatizer()
     words = [lm.lemmatize(word, pos='v') for word in text]  # pos='v' means verb removing part of speech
     return ' '.join(words)
-
-
-def to_tfidf(text):
-    tfidf = CountVectorizer()
-    text = tfidf.fit_transform([text]).toarray()
-    return text
 
 
 # Creating home route
@@ -77,20 +58,11 @@ def home_page():
 @app.route('/predict', methods=['POST', 'GET'])
 def prediction_page():
     resume = request.form.get('resume')
-    resume = remove_url(resume)
-    resume = encode(resume)
-    resume = remove_tags(resume)
-    resume = str(resume.lower())
-    resume = tokenize(resume)
-    resume = remove_stopwords(resume)
-    resume = lemmatize_words(resume)
-    resume = to_tfidf(resume)
-    result = model.predict(resume)
+    resume = nlp_preprocessing(resume)
+    tfidf_vector = tfidf.transform([resume])
+    result = model.predict(tfidf_vector)
 
-    # Creating
-    print(result)
-
-    return render_template('prediction.html')
+    return render_template('prediction.html', result="The Person belong to {} domain".format(result))
 
 
 if __name__ == "__main__":
